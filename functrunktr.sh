@@ -3,7 +3,7 @@
 function Log_Open() {
     Pipe=tmplog.pipe
     mkfifo -m 700 $Pipe
-    LOGFILE=phonelog.txt
+    LOGFILE=trunklog.txt
     exec 3>&1
     tee ${LOGFILE} <$Pipe >&3 &
     teepid=$!
