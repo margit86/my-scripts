@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function Log_Open() {
+function Log_Open~ {
     Pipe=tmplog.pipe
     mkfifo -m 700 $Pipe
     LOGFILE=trunklog.txt
@@ -11,7 +11,7 @@ function Log_Open() {
     PIPE_OPENED=1
 }
 
-function Log_Close() {
+function Log_Close~ {
     if [ ${PIPE_OPENED} ] ; then
        exec 1<&3
        sleep 0.2
@@ -28,7 +28,7 @@ function Log_Close() {
 }
 
 
-function checkG729() {
+function checkG729~ {
     /sbin/asterisk -rx 'core show translation' | grep -q g729
     codec=$(echo $?)
 
@@ -45,21 +45,25 @@ function checkG729() {
 }
 
 
-function ask() {
+function ask~ {
 
     #ex : /sbin/asterisk -rx "pjsip show contacts"    
     # comment > command
 
     if [[ -z $3 ]] ; then
         echo "~~~~~~~~~~~~~~~~~"
+        echo "~~~~~~~~~~~~~~~~~"
         echo "$1"
+        echo "~~~~~~~~~~~~~~~~~"
         echo "~~~~~~~~~~~~~~~~~"
         /sbin/asterisk -rx "$2"
         echo ""
     else
         # terzo parametro
         echo "~~~~~~~~~~~~~~~~~"
+	echo "~~~~~~~~~~~~~~~~~"
         echo "$1"
+        echo "~~~~~~~~~~~~~~~~~"
         echo "~~~~~~~~~~~~~~~~~"
         /sbin/asterisk -rx "$2"
 	/sbin/asterisk -rx "$3"
@@ -67,14 +71,17 @@ function ask() {
     fi
 }
 
-function query(){
+function query~{
 
-	echo "-o-o-o-o-o-o-o--o-o-o"
+        echo "~~~~~~~~~~~~~~~~~"
+        echo "~~~~~~~~~~~~~~~~~"
 	echo "$1"
-	echo "-o-o-o-o-o-o-o-o-o-o-"
+        echo "~~~~~~~~~~~~~~~~~"
+        echo "~~~~~~~~~~~~~~~~~"
 	mysql -D asterisk -t -e "$2"	
 	echo ""
-	echo "()()()()()()()()()()()()()()()()()()()()()()"
+        echo "~~~~~~~~~~~~~~~~~"
+        echo "~~~~~~~~~~~~~~~~~"
 	
 }
 
@@ -93,6 +100,8 @@ query "OUTBOUND ROUTE CONFIGURATION: " "select * from outbound_routes;"
 query "OUTBOUND ROUTES PATTERNS: " "select * from outbound_route_patterns;"
 
 
+echo "~~~~~~~~~~~~~~~~~~~~~~"
+echo "~~~~~~~~~~~~~~~~~~~~~~"
 echo ""
 echo "Generated on $(date)"
 echo ""
