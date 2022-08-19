@@ -12,81 +12,71 @@ function Log_Open() {
 }
 
 function Log_Close() {
-    if [ ${PIPE_OPENED} ] ; then
-       exec 1<&3
-       sleep 0.2
-       ps --pid $teepid >/dev/null
-       if [ $? -eq 0 ] ; then
-            # a wait $teepid whould be better but some
-            # commands leave file descriptors open
+    if [ ${PIPE_OPENED} ]; then
+        exec 1<&3
+        sleep 0.2
+        ps --pid $teepid >/dev/null
+        if [ $? -eq 0 ]; then
             sleep 1
-            kill  $teepid
-       fi
-                rm $Pipe
-                unset PIPE_OPENED
+            kill $teepid
         fi
+        rm $Pipe
+        unset PIPE_OPENED
+    fi
 }
-
 
 function checkG729() {
     /sbin/asterisk -rx 'core show translation' | grep -q g729
     codec=$(echo $?)
 
-    if [[ $codec==0 ]]
-    then
-	echo "#########################"
-	printf "Codec G729 INSTALLED\n"
-	echo "#########################"
+    if [[ $codec==0 ]]; then
+        echo -e "~~~~~~~~~~~~~~~~~~~~"
+        echo -e "Codec G729 INSTALLED"
+        echo -e "~~~~~~~~~~~~~~~~~~~~\n"
     else
-	echo "############################"
-	printf "Codec G729 NOT INSTALLED\n"
-	echo "##########################"
+        echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~"
+        echo -e "Codec G729 NOT INSTALLED"
+        echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~\n"
     fi
 }
 
-
 function ask() {
 
-    #ex : /sbin/asterisk -rx "pjsip show contacts"    
+    #ex : /sbin/asterisk -rx "pjsip show contacts"
     # comment > command
 
-    if [[ -z $3 ]] ; then
-        echo "~~~~~~~~~~~~~~~~~"
-        echo "~~~~~~~~~~~~~~~~~"
+    if [[ -z $3 ]]; then
+        echo -e "~~~~~~~~~~~~~~~~~"
         echo "$1"
-        echo "~~~~~~~~~~~~~~~~~"
-        echo "~~~~~~~~~~~~~~~~~"
+        echo -e "~~~~~~~~~~~~~~~~~\n"
         /sbin/asterisk -rx "$2"
-        echo ""
+        echo -e "\n"
     else
         # terzo parametro
-        echo "~~~~~~~~~~~~~~~~~"
-	echo "~~~~~~~~~~~~~~~~~"
+        echo -e "~~~~~~~~~~~~~~~~~"
         echo "$1"
-        echo "~~~~~~~~~~~~~~~~~"
-        echo "~~~~~~~~~~~~~~~~~"
+        echo -e "~~~~~~~~~~~~~~~~~\n"
+
         /sbin/asterisk -rx "$2"
-	/sbin/asterisk -rx "$3"
-        echo ""
+        /sbin/asterisk -rx "$3"
+
+        echo -e "\n"
     fi
 }
 
 function query() {
 
-        echo "~~~~~~~~~~~~~~~~~"
-        echo "~~~~~~~~~~~~~~~~~"
-	echo "$1"
-        echo "~~~~~~~~~~~~~~~~~"
-        echo "~~~~~~~~~~~~~~~~~"
-	mysql -D asterisk -t -e "$2"	
-	echo ""
-        echo "~~~~~~~~~~~~~~~~~"
-        echo "~~~~~~~~~~~~~~~~~"
-	
+    echo -e "~~~~~~~~~~~~~~~~~"
+    echo "$1"
+    echo -e "~~~~~~~~~~~~~~~~~\n"
+
+    mysql -D asterisk -t -e "$2"
+
+    echo -e "\n"
+
 }
 
 Log_Open
-
 
 ask "ASTERISK VERSION: " "core show version"
 ask "ASTERISK UPTIME: " "core show uptime"
@@ -99,15 +89,10 @@ ask "EXTENSIONS CALL FORWARD BUSY CONFIGURATION: " "database show CFB"
 query "OUTBOUND ROUTE CONFIGURATION: " "select * from outbound_routes;"
 query "OUTBOUND ROUTES PATTERNS: " "select * from outbound_route_patterns;"
 
-
-echo "~~~~~~~~~~~~~~~~~~~~~~"
-echo "~~~~~~~~~~~~~~~~~~~~~~"
-echo ""
-echo "Generated on $(date)"
-echo ""
+echo -e "\n~~~~~~~~~~~~~~~~~~~~~~\n"
+echo -e "Generated on $(date)\n"
 Log_Close
-echo "Please paste this link into the ticket reply: "
+echo -e "Please paste this link into the ticket reply: \n"
 PUSH_LOG=$(curl --silent -H "Max-Days: 5" --upload-file ./$LOGFILE https://transfer.sh/)
-echo ""
 echo "~> $PUSH_LOG <~"
-echo ""
+echo -e "\n~~~~~~~~~~~~~~~~~~~~~~\n"
